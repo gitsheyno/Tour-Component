@@ -1,24 +1,58 @@
-import logo from './logo.svg';
-import './App.css';
-
+import { GlobalStyles } from './component/styles/Global'
+import { useState, useEffect } from 'react'
+import Tours from './component/Tours'
+import Logo from './component/Logo'
 function App() {
+  const url = 'https://course-api.com/react-tours-project'
+  const [data, setData] = useState([])
+  const [isLoad, setIsLoad] = useState(true)
+  const handleDelete = (id) => {
+    const listItems = data.filter(item => (
+      item.id !== id
+    ))
+
+    console.log(listItems)
+    setData(listItems)
+  }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(url)
+        const jsonData = await res.json()
+
+        setData(jsonData)
+        console.log(jsonData)
+      } catch (err) {
+        console.log(err.message)
+      } finally {
+        setIsLoad(false)
+      }
+    }
+
+    setTimeout(() => {
+      fetchData()
+    }, 3000)
+
+  }, [])
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <GlobalStyles />
+      {isLoad && <p className='alert'>LOADING ...</p>}
+      {!isLoad &&
+        <div className="App">
+          <Logo />
+          {data.length > 0 ? (
+            <Tours
+              data={data}
+              handleDelete={handleDelete}
+            />
+          ) : (
+            <p className='alert'>There Is No Tour To Show</p>
+          )}
+
+        </div>
+      }
+    </>
   );
 }
 
